@@ -4,7 +4,7 @@ This repository provides a Tensorflow implementation of the **FastGAE** framewor
 
 We evaluate FastGAE on the **link prediction** and **node clustering** tasks introduced in the paper. We provide the Cora, Citeseer, Pubmed and Google datasets in the `data` folder. The three additional graphs used in the paper (SBM, Patent and Youtube) will later be provided via external links due to size constraints. We refer to section 4 of the paper for more information about datasets.
 
-Our code builds upon Thomas Kipf's [original implementation](https://github.com/tkipf/gae) of standard Graph AE and VAE, and upon [previous research works](https://github.com/deezer/linear_graph_autoencoders) from our team.
+Our code builds upon Thomas Kipf's [original implementation](https://github.com/tkipf/gae) of graph AE and VAE, and upon [previous research works](https://github.com/deezer/linear_graph_autoencoders) from our team.
 
 
 ## Installation

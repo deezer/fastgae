@@ -1,8 +1,10 @@
-# FastGAE
+# FastGAE: Scalable Graph Autoencoders with Stochastic Subgraph Decoding
 
-This repository provides a Tensorflow implementation of the **FastGAE** framework, introduced in the article [FastGAE: Fast, Scalable and Effective Graph Autoencoders with Stochastic Subgraph Decoding](https://arxiv.org/pdf/2002.01910.pdf). This framework aims at speeding up **Graph Autoencoders (AE)** and **Graph Variational Autoencoders (VAE)**, and at scaling these models to large graphs with millions of nodes and edges.
+This repository provides a Tensorflow implementation of the **FastGAE** framework, introduced in the article [FastGAE: Scalable Graph Autoencoders with Stochastic Subgraph Decoding](https://arxiv.org/pdf/2002.01910.pdf). This framework aims at speeding up **Graph Autoencoders (AE)** and **Graph Variational Autoencoders (VAE)**, and at scaling these models to large graphs with millions of nodes and edges.
 
-We evaluate FastGAE on the **link prediction** and **node clustering** tasks introduced in the paper. We provide the Cora, Citeseer, Pubmed and Google datasets in the `data` folder. The three additional graphs used in the paper (SBM, Patent and Youtube) will later be provided via external links due to size constraints. We refer to section 4 of the paper for more information about datasets.
+We provide the FastGAE and Variational FastGAE models from our paper, together with standard Graph Autoencoders and standard Graph Variational Autoencoders from the original article of Kipf and Welling (2016).
+
+We evaluate our framework on the **link prediction** and **node clustering** tasks introduced in the paper. We provide the Cora, Citeseer, Pubmed and Google datasets in the `data` folder. The three additional graphs used in the paper (SBM, Patent and Youtube) will later be provided via external links due to size constraints. We refer to section 4 of the paper for more information about datasets.
 
 Our code builds upon Thomas Kipf's [original implementation](https://github.com/tkipf/gae) of graph AE and VAE, and upon [previous research works](https://github.com/deezer/linear_graph_autoencoders) from our team.
 
@@ -65,7 +67,7 @@ Please cite our paper if you use this code in your own work:
 
 ```BibTeX
 @article{salha2020fastgae,
-  title={FastGAE: Fast, Scalable and Effective Graph Autoencoders with Stochastic Subgraph Decoding},
+  title={FastGAE: Scalable Graph Autoencoders with Stochastic Subgraph Decoding},
   author={Salha, Guillaume and Hennequin, Romain and Remy, Jean-Baptiste and Moussallam, Manuel and Vazirgiannis, Michalis},
   journal={arXiv preprint arXiv:2002.01910},
   year={2020}

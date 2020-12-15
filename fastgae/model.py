@@ -4,11 +4,6 @@ import tensorflow as tf
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 
-"""
-Disclaimer: classes from this file mainly come from
-tkipf/gae original repository on Graph Autoencoders.
-"""
-
 
 class Model(object):
     """ Model base class"""
@@ -41,6 +36,42 @@ class Model(object):
 
     def predict(self):
         pass
+
+
+class LinearModelAE(Model):
+    """
+    Linear Graph Autoencoder, as defined in Section 3 of NeurIPS 2019 workshop paper,
+    with linear encoder and inner product decoder
+    """
+    def __init__(self, placeholders, num_features, features_nonzero, **kwargs):
+        super(LinearModelAE, self).__init__(**kwargs)
+
+        self.inputs = placeholders['features']
+        self.input_dim = num_features
+        self.features_nonzero = features_nonzero
+        self.adj = placeholders['adj']
+        self.dropout = placeholders['dropout']
+        self.sampled_nodes = placeholders['sampled_nodes']
+        self.build()
+
+    def _build(self):
+        self.z_mean = GraphConvolutionSparse(input_dim = self.input_dim,
+                                             output_dim = FLAGS.dimension,
+                                             adj = self.adj,
+                                             features_nonzero = self.features_nonzero,
+                                             act = lambda x: x,
+                                             dropout = self.dropout,
+                                             logging = self.logging)(self.inputs)
+
+        self.reconstructions = InnerProductDecoder(fastgae = FLAGS.fastgae, # Whether to use FastGAE
+                                                   sampled_nodes = self.sampled_nodes, # FastGAE subgraph
+                                                   act = lambda x: x,
+                                                   logging = self.logging)(self.z_mean)
+
+        self.clusters = DistanceDecoder(fastgae = FLAGS.fastgae, # Whether to use FastGAE
+                                        sampled_nodes = self.sampled_nodes, # FastGAE subgraph
+                                        act = lambda x: x,
+                                        logging = self.logging)(self.z_mean)
 
 
 class GCNModelAE(Model):
@@ -78,6 +109,61 @@ class GCNModelAE(Model):
                                                    sampled_nodes = self.sampled_nodes, # FastGAE subgraph
                                                    act = lambda x: x,
                                                    logging = self.logging)(self.z_mean)
+
+        self.clusters = DistanceDecoder(fastgae = FLAGS.fastgae, # Whether to use FastGAE
+                                        sampled_nodes = self.sampled_nodes, # FastGAE subgraph
+                                        act = lambda x: x,
+                                        logging = self.logging)(self.z_mean)
+
+
+class LinearModelVAE(Model):
+    """
+    Linear Graph Variational Autoencoder, as defined in Section 3 of
+    NeurIPS 2019 workshop paper, with Gaussian distributions, linear
+    encoders for mu and sigma, and inner product decoder
+    """
+    def __init__(self, placeholders, num_features, num_nodes, features_nonzero, **kwargs):
+        super(LinearModelVAE, self).__init__(**kwargs)
+
+        self.inputs = placeholders['features']
+        self.input_dim = num_features
+        self.features_nonzero = features_nonzero
+        self.n_samples = num_nodes
+        self.adj = placeholders['adj']
+        self.dropout = placeholders['dropout']
+        self.sampled_nodes = placeholders['sampled_nodes']
+        self.build()
+
+    def _build(self):
+
+        self.z_mean = GraphConvolutionSparse(input_dim = self.input_dim,
+                                             output_dim = FLAGS.dimension,
+                                             adj = self.adj,
+                                             features_nonzero=self.features_nonzero,
+                                             act = lambda x: x,
+                                             dropout = self.dropout,
+                                             logging = self.logging)(self.inputs)
+
+        self.z_log_std = GraphConvolutionSparse(input_dim = self.input_dim,
+                                                output_dim = FLAGS.dimension,
+                                                adj = self.adj,
+                                                features_nonzero = self.features_nonzero,
+                                                act = lambda x: x,
+                                                dropout = self.dropout,
+                                                logging = self.logging)(self.inputs)
+
+        self.z = self.z_mean + tf.random_normal([self.n_samples, FLAGS.dimension]) * tf.exp(self.z_log_std)
+
+        self.reconstructions = InnerProductDecoder(fastgae = FLAGS.fastgae, # Whether to use FastGAE
+                                                   sampled_nodes = self.sampled_nodes, # FastGAE subgraph
+                                                   act = lambda x: x,
+                                                   logging = self.logging)(self.z)
+
+        self.clusters = DistanceDecoder(fastgae = FLAGS.fastgae, # Whether to use FastGAE
+                                        sampled_nodes = self.sampled_nodes, # FastGAE subgraph
+                                        act = lambda x: x,
+                                        logging = self.logging)(self.z)
+
 
 
 class GCNModelVAE(Model):
@@ -126,3 +212,8 @@ class GCNModelVAE(Model):
                                                    sampled_nodes = self.sampled_nodes, # FastGAE subgraph
                                                    act = lambda x: x,
                                                    logging = self.logging)(self.z_mean)
+
+        self.clusters = DistanceDecoder(fastgae = FLAGS.fastgae, # Whether to use FastGAE
+                                        sampled_nodes = self.sampled_nodes, # FastGAE subgraph
+                                        act = lambda x: x,
+                                        logging = self.logging)(self.z)

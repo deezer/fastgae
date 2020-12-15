@@ -20,6 +20,13 @@ def sparse_to_tuple(sparse_mx):
     shape = sparse_mx.shape
     return coords, values, shape
 
+def preprocess_graph2(adj):
+    adj = sp.coo_matrix(adj)
+    adj_ = adj + sp.eye(adj.shape[0])
+    degree_mat_inv_sqrt = sp.diags(np.power(np.array(adj_.sum(1)), -0.5).flatten())
+    adj_normalized = adj_.dot(degree_mat_inv_sqrt).transpose().dot(degree_mat_inv_sqrt)
+    return sp.csr_matrix(adj_normalized)
+
 def preprocess_graph(adj):
     adj = sp.coo_matrix(adj)
     adj_ = adj + sp.eye(adj.shape[0])
@@ -27,12 +34,13 @@ def preprocess_graph(adj):
     adj_normalized = adj_.dot(degree_mat_inv_sqrt).transpose().dot(degree_mat_inv_sqrt)
     return sparse_to_tuple(adj_normalized)
 
-def construct_feed_dict(adj_normalized, adj, features, placeholders):
+def construct_feed_dict(adj_normalized, adj, adj_louvain, features, placeholders):
     # Construct feed dictionary
     feed_dict = dict()
     feed_dict.update({placeholders['features']: features})
     feed_dict.update({placeholders['adj']: adj_normalized})
     feed_dict.update({placeholders['adj_orig']: adj})
+    feed_dict.update({placeholders['adj_louvain']: adj_louvain})
     return feed_dict
 
 def mask_test_edges(adj, test_percent=10., val_percent=5.):

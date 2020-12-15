@@ -1,5 +1,5 @@
 from sklearn.cluster import KMeans
-from sklearn.metrics import average_precision_score, roc_auc_score, adjusted_mutual_info_score
+from sklearn.metrics import average_precision_score, roc_auc_score, adjusted_mutual_info_score, normalized_mutual_info_score
 import numpy as np
 import tensorflow as tf
 
@@ -52,4 +52,4 @@ def clustering_latent_space(emb, label, nb_clusters=None):
     # K-Means Clustering
     clustering_pred = KMeans(n_clusters = nb_clusters, init = 'k-means++').fit(emb).labels_
     # Compute metrics
-    return adjusted_mutual_info_score(label, clustering_pred)
+    return adjusted_mutual_info_score(label, clustering_pred), normalized_mutual_info_score(label, clustering_pred)

@@ -35,7 +35,7 @@ def get_distribution(measure, alpha, adj):
     proba = proba/np.sum(proba)
     return proba
 
-def node_sampling(adj, distribution, nb_node_samples, replace=False):
+def node_sampling(adj, adj_louvain, distribution, nb_node_samples, replace=False):
     """ Sample a subgraph from a given node-level distribution
     :param adj: sparse adjacency matrix of the graph
     :param distribution: p_i distribution, from get_distribution()
@@ -48,6 +48,12 @@ def node_sampling(adj, distribution, nb_node_samples, replace=False):
                                      replace = replace, p = distribution)
     # Sparse adjacency matrix of sampled subgraph
     sampled_adj = adj[sampled_nodes,:][:,sampled_nodes]
+
     # In tuple format (useful for optimizers)
     sampled_adj_tuple = sparse_to_tuple(sampled_adj + sp.eye(sampled_adj.shape[0]))
-    return sampled_nodes, sampled_adj_tuple, sampled_adj
+
+    # Same for Louvain matrix
+    sampled_adj_louvain = adj_louvain[sampled_nodes,:][:,sampled_nodes]
+    sampled_adj_louvain_tuple = sparse_to_tuple(sampled_adj_louvain)
+
+    return sampled_nodes, sampled_adj_tuple, sampled_adj, sampled_adj_louvain_tuple

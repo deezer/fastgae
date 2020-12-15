@@ -5,6 +5,10 @@ flags = tf.app.flags
 FLAGS = flags.FLAGS
 _LAYER_UIDS = {} # Global unique layer ID dictionary for layer name assignment
 
+"""
+Disclaimer: functions and classes from lines 15 to 101 in this file
+come from tkipf/gae original repository on Graph Autoencoders.
+"""
 
 def get_layer_uid(layer_name = ''):
     """Helper function, assigns unique layer IDs """
@@ -55,24 +59,6 @@ class Layer(object):
         with tf.name_scope(self.name):
             outputs = self._call(inputs)
             return outputs
-
-
-
-class Dense(Layer):
-    """ Dense """
-    def __init__(self, input_dim, output_dim, dropout = 0., act = tf.nn.softmax, **kwargs):
-        super(Dense, self).__init__(**kwargs)
-        with tf.variable_scope(self.name + '_vars'):
-            self.vars['weights'] = weight_variable_glorot(input_dim, output_dim, name = "weights")
-        self.dropout = dropout
-        self.act = act
-
-    def _call(self, inputs):
-        x = inputs
-        x = tf.nn.dropout(x, 1 - self.dropout)
-        x = tf.matmul(x, self.vars['weights'])
-        outputs = self.act(x)
-        return outputs
 
 
 class GraphConvolution(Layer):
@@ -134,35 +120,3 @@ class InnerProductDecoder(Layer):
         x = tf.reshape(x, [-1])
         outputs = self.act(x)
         return outputs
-
-
-class DistanceDecoder(Layer):
-    """Reconstuct an n x n squared L2 distance matrix from embedding matrix Z
-    element (i,j) = squared distance between z_i and z_j"""
-    def __init__(self, fastgae, sampled_nodes, dropout=0., act=tf.nn.sigmoid, **kwargs):
-        super(DistanceDecoder, self).__init__(**kwargs)
-        self.dropout = dropout
-        self.act = act
-        self.sampled_nodes = sampled_nodes # Nodes from sampled subgraph to decode
-        self.fastgae = fastgae # Whether to use the FastGAE framework
-
-    def _call(self, inputs):
-        inputs = tf.nn.dropout(inputs, 1-self.dropout)
-        if self.fastgae:
-            inputs = tf.gather(inputs, self.sampled_nodes)
-        # Get pairwise node distances in embedding
-        #inputs = tf.math.l2_normalize(inputs, axis = 0)  # TEST
-        dist = pairwise_distance(inputs)
-        outputs = tf.reshape(dist,[-1])
-        outputs = self.act(outputs)
-        return outputs
-
-def pairwise_distance(X):
-    """ Computes pairwise distances between node pairs
-    :param X: n*d embedding matrix
-    :param epsilon: add a small value to distances for numerical stability
-    :return: n*n matrix of squared euclidean distances
-    """
-    x1 = tf.reduce_sum(X * X, 1, True)
-    x2 = tf.matmul(X, tf.transpose(X))
-    return x1 - 2 * x2 + tf.transpose(x1)

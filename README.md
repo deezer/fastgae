@@ -68,12 +68,13 @@ As detailed in Table 2 of the paper, line 2 returns competitive average performa
 Please cite our paper if you use this code in your own work:
 
 ```BibTeX
-@article{salha2020fastgae,
-  title={FastGAE: Scalable Graph Autoencoders with Stochastic Subgraph Decoding},
+@article{salha2021fastgae,
+  title={FastGAE: Scalable graph autoencoders with stochastic subgraph decoding},
   author={Salha, Guillaume and Hennequin, Romain and Remy, Jean-Baptiste and Moussallam, Manuel and Vazirgiannis, Michalis},
-  journal={arXiv preprint arXiv:2002.01910},
-  year={2020}
+  journal={Neural Networks},
+  volume={142},
+  pages={1--19},
+  year={2021},
+  publisher={Elsevier}
 }
 ```
-
-_(arXiv version - this work will appear in Neural Network in 2021)_
